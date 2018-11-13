@@ -1,14 +1,17 @@
-import com.sun.javafx.PlatformUtil;
-import org.openqa.selenium.WebDriver;
+import util.CommonFunctions;
+import util.TestBase;
+import util.Util;
+
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.pagefactory.AjaxElementLocatorFactory;
 import org.openqa.selenium.support.ui.Select;
+import org.testng.annotations.AfterTest;
 import org.testng.annotations.Test;
 
-public class HotelBookingTest {
+public class HotelBookingTest extends TestBase{
 
-    WebDriver driver = new ChromeDriver();
 
     @FindBy(linkText = "Hotels")
     private WebElement hotelLink;
@@ -22,32 +25,44 @@ public class HotelBookingTest {
     @FindBy(id = "travellersOnhome")
     private WebElement travellerSelection;
 
+    @FindBy(xpath = "//*[@id='ui-id-3']")
+    private WebElement selectFirstoption;
+    
+    
+
+    public HotelBookingTest() {
+		PageFactory.initElements(new AjaxElementLocatorFactory(driver, 1), this);
+	}
+    
     @Test
-    public void shouldBeAbleToSearchForHotels() {
-        setDriverPath();
+    public void shouldBeAbleToSearchForHotels() throws Exception {
+        
+    	invokebrowser();
+    	HotelBookingTest hotel=new HotelBookingTest();
+    	
+    	CommonFunctions.clickWebelement(hotel.hotelLink, "Hotel Link");
 
-        driver.get("https://www.cleartrip.com/");
-        hotelLink.click();
+    	CommonFunctions.Sendkeys( hotel.localityTextBox, "Indiranagar, Bangalore", "Localty Text");
 
-        localityTextBox.sendKeys("Indiranagar, Bangalore");
+    	CommonFunctions.clickWebelement(hotel.selectFirstoption, "Selecting First optin");
+    	
+    	// Selecting the check-in date according to that passing date.
+        Util.selectDate(5);
+        Util.waitFor(1500);
+        
+        // Selecting the check-out date according to that passing date.
+        Util.selectDate(8);
 
-        new Select(travellerSelection).selectByVisibleText("1 room, 2 adults");
-        searchButton.click();
-
-        driver.quit();
+        // Selecting the traveleres Selection
+        new Select(hotel.travellerSelection).selectByVisibleText("1 room, 2 adults");
+        
+        CommonFunctions.clickWebelement(hotel.searchButton, "Search Button");
 
     }
 
-    private void setDriverPath() {
-        if (PlatformUtil.isMac()) {
-            System.setProperty("webdriver.chrome.driver", "chromedriver");
-        }
-        if (PlatformUtil.isWindows()) {
-            System.setProperty("webdriver.chrome.driver", "chromedriver.exe");
-        }
-        if (PlatformUtil.isLinux()) {
-            System.setProperty("webdriver.chrome.driver", "chromedriver_linux");
-        }
+    @AfterTest
+    public void closedriver() {
+    	driver.quit();
     }
 
 }
